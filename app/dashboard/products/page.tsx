@@ -60,12 +60,12 @@ function CollapsibleText({ text, maxChars }) {
             {isCollapsed ? (
                 <div>
                     {text.length > maxChars ? text.slice(0, maxChars) : text}
-                    <button onClick={toggleCollapse}>...More</button>
+                    <p>...<span onClick={toggleCollapse} className="text-black dark:text-white hover:cursor-pointer hover:underline">More</span></p>
                 </div>
             ) : (
                 <div>
                     {text}
-                    <button onClick={toggleCollapse}>Less</button>
+                    <p onClick={toggleCollapse} className="text-black dark:text-white hover:cursor-pointer hover:underline">Less</p>
                 </div>
             )}
         </div>
@@ -377,7 +377,7 @@ export default function Page() {
             </div>
             <ReactPaginate
                 pageCount={Math.ceil(productList.length / itemPerPage)}
-                pageRangeDisplayed={5}
+                pageRangeDisplayed={1}
                 marginPagesDisplayed={2}
                 onPageChange={handlePageChange}
                 containerClassName="pagination flex justify-center dark:text-white"
@@ -423,6 +423,7 @@ export default function Page() {
                         {modalMode === "add" ? "Add" : "Save"}
                     </Button>,
                 ]}
+                className="custom-bg"
             >
                 <form id="form">
                     <div className='inputContainer'>

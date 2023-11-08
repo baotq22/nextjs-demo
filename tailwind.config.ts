@@ -18,6 +18,9 @@ const config: Config = {
           600: '#2F6FEB',
         },
       },
+      backgroundColor: {
+        'custom-bg': '#374456',
+      },
     },
     keyframes: {
       shimmer: {

@@ -50,11 +50,11 @@ export default function Page() {
 
     return (
         <>
-            <div id="products">
+            <div className="max-w-7xl mx-auto my-0">
                 <div className="container">
-                    <h3 className="products__heading dark:text-white">DASHBOARD</h3>
+                    <h3 className="my-5 text-3xl dark:text-white">DASHBOARD</h3>
                     <Row gutter={[16, 24]} className="rowClass">
-                        <Col span={12}>
+                        <Col span={12} className="drop-shadow-xl">
                             <Card className="cardBody" style={{ backgroundImage: "linear-gradient(to right, #fff 30%, #C779D0)" }}>
                                 <ShoppingOutlined style={{ float: "right", fontSize: '40px', color: "#fff" }} />
                                 <Statistic
@@ -64,7 +64,7 @@ export default function Page() {
                                 />
                             </Card>
                         </Col>
-                        <Col span={12}>
+                        <Col span={12} className="drop-shadow-xl">
                             <Card className="cardBody" style={{ backgroundImage: "linear-gradient(to right, #fff 30%, #26d0ce)" }}>
                                 <UserOutlined style={{ float: "right", fontSize: '40px', color: "#fff" }} />
                                 <Statistic
@@ -77,32 +77,38 @@ export default function Page() {
                     </Row>
                 </div>
             </div>
-            <div id="products">
+            <div className="max-w-7xl mx-auto my-0">
                 <div className="container">
-                    <h3 className="products__heading dark:text-white">BEST SELLER</h3>
+                    <h3 className="my-5 text-3xl dark:text-white">BEST SELLER</h3>
                     {loadingContent}
-                    <div className="products__list" id="products__list">
+                    <div className="products__list flex flex-wrap">
                         {
                             paginatedProductList.map((product, index) =>
-                                <div className="products__item" key={index}>
+                                <div className="products__item
+                                                drop-shadow-xl
+                                                rounded-e-xl
+                                                rounded-es-xl
+                                                p-5 mx-3.5 mb-8 mt-0
+                                                bg-gradient-to-r from-pink-300 from-0% to-sky-400 to-100%" key={index}>
                                     <Link href={`dashboard/products/details/${product.id}`}>
-                                        <small className="products__sale">Portion pay {product.special}%</small>
-                                        <div className="products__img">
-                                            <a href={`dashboard/products/details/${product.id}`} className="products__img">
-                                                <img src={product.image} />
+                                        <small className="text-white
+                                                          py-1.5 px-2.5 top-0 right-0
+                                                          rounded-ee-xl
+                                                          bg-gradient-to-r from-cyan-500 from-0% via-sky-800 via-50% to-fuchsia-700 to-100%">Portion pay {product.special}%</small>
+                                        <div className="products__img my-1.5">
+                                            <a href={`dashboard/products/details/${product.id}`} className="my-1.5 flex items-center justify-center h-64">
+                                                <img className="max-w-full inline-block" src={product.image} />
                                             </a>
                                         </div>
-                                        <p>
-                                            <p className="products__title">{product.productName}</p>
-                                        </p>
-                                        <p className="products__price">
+                                        <p className="products__title text-lg text-center text-black mb-4">{product.productName}</p>
+                                        <p className="text-red-600 text-center text-base">
                                             <span>{product.price}₫</span>
-                                            <span>-{product.discount}% SALE</span>
+                                            <span className="bg-slate-100 ml-2 text-red-600 text-base p-1 rounded-md pl-2.5">-{product.discount}% SALE</span>
                                         </p>
-                                        <div className="products__rating">
-                                            <span>{product.ratingPoint}</span>
-                                            <span><i className="fa-solid fa-star" style={{ color: '#f9c61f' }}></i></span>
-                                            <span>({product.quantity} sold)</span>
+                                        <div className="text-center">
+                                            <span className="text-sm p-1">{product.ratingPoint}</span>
+                                            <span className="text-sm p-1"><i className="fa-solid fa-star" style={{ color: '#f9c61f' }}></i></span>
+                                            <span className="text-sm p-1">({product.quantity} sold)</span>
                                         </div>
                                     </Link>
                                 </div>

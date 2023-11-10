@@ -30,3 +30,41 @@
         max-width: calc(50% - 30px);
     }
 }
+
+@media (prefers-color-scheme: dark) {
+    .ant-modal .ant-modal-content {
+        background-color: #374151;
+        color: #fff;
+    }
+
+    .ant-modal .ant-modal-content .ant-modal-header {
+        background-color: #374151;
+    }
+
+    .ant-modal .ant-modal-content .ant-modal-close .ant-modal-close-x .anticon-close {
+        color: #fff;
+    }
+
+    .ant-modal .ant-modal-content .ant-modal-header .ant-modal-title {
+        color: #fff;
+        font-size: 25px;
+    }
+
+    .ant-modal .ant-modal-content .ant-modal-body #form .inputContainer .to-dark {
+        background-color: #1f2937;
+    }
+
+    .ant-modal .ant-modal-content .ant-modal-footer .ant-btn-default {
+        color: #fff;
+    }
+
+    .ant-modal .ant-modal-content .ant-modal-footer .ant-btn-primary
+    .ant-modal .ant-modal-content .ant-modal-footer .ant-btn-primary:disabled {
+        border: 1px solid #fff;
+        color: #fff
+    }
+
+    .hide-x .ant-modal-content .ant-modal-close .ant-modal-close-x .anticon-close {
+        display: none;
+    }
+}

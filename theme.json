@@ -1,0 +1,7 @@
+{
+  "components": {
+    "Modal": {
+      "colorBgElevated": "rgb(55, 65, 81)"
+    }
+  }
+}

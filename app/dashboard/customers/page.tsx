@@ -5,6 +5,8 @@ import axios from "axios";
 import ReactPaginate from "react-paginate";
 import {Button, Modal, Skeleton} from "antd";
 import Link from "next/link";
+import {DownOutlined, UpOutlined} from "@ant-design/icons";
+import '../styles.css'
 
 function Search({ userList, setFilteredUser }) {
     const [searchQuery, setSearchQuery] = useState("");
@@ -39,11 +41,20 @@ function Search({ userList, setFilteredUser }) {
                            value={searchQuery}
                            onChange={handleSearch}
                     />
-                    <button type="submit"
-                            className="text-white absolute right-2.5 bottom-1 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search
-                    </button>
                 </div>
             </form>
+        </>
+    )
+}
+
+function ConvertDate({date}) {
+    const inputDate = date;
+    const dateObj = new Date(inputDate);
+    const formattedDate = dateObj.toLocaleString("en-GB", {timeZone: "UTC"});
+
+    return (
+        <>
+            {formattedDate}
         </>
     )
 }
@@ -56,8 +67,10 @@ export default function Page() {
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
     const [openAdd, setOpenAdd] = useState(false);
+    const [openImageDetails, setOpenImageDetails] = useState(false);
     const [userToDelete, setUserToDelete] = useState(null);
     const [modalMode, setModalMode] = useState('add');
+    const [selectedImage, setSelectedImage] = useState(null);
     const [formValues, setFormValues] = useState({
         email: '',
         username: '',
@@ -97,6 +110,14 @@ export default function Page() {
     const cancelAddModal = () => {
         setOpenAdd(false);
         resetForm();
+    }
+
+    const showImageModal = () => {
+        setOpenImageDetails(true);
+    }
+
+    const hideImageModal = () => {
+        setOpenImageDetails(false);
     }
 
     const getUsers = async () => {
@@ -198,6 +219,11 @@ export default function Page() {
         setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     }
 
+    const handleImageClick = (image) => {
+        setSelectedImage(image);
+        showImageModal();
+    }
+
     async function deleteUser(id: number) {
         try {
             await fetch(`https://64f71db49d77540849531dc0.mockapi.io/users/${id}`, {
@@ -227,36 +253,39 @@ export default function Page() {
     return (
         <>
             <button type="button"
-                    className="text-white bg-gradient-to-br from-green-400 to-blue-600 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+                    className="bg-slate-300 text-black hover:bg-slate-100 dark:bg-slate-500 dark:text-white dark:hover:bg-slate-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
                     onClick={showAddModal}>Add New User
             </button>
             <Search userList={userList} setFilteredUser={setFilteredUsers}/>
-            <div className="relative overflow-x-auto">
+            <div className="relative overflow-x-auto hover:overflow-x-scroll">
                 <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                    <thead className="text-xs text-gray-100 uppercase bg-gradient-to-r from-cyan-500 to-blue-500 dark:bg-gradient-to-r dark:from-indigo-500 dark:via-purple-500 dark:to-pink-500">
+                    <thead className="text-xs text-gray-700 dark:text-gray-200 uppercase bg-stone-200 dark:bg-zinc-700">
                         <tr>
-                            <th scope="col" className="px-6 py-3">
+                            <th scope="col" className="px-6 py-3 border-r border-slate-500">
                                 #
                             </th>
-                            <th scope="col" className="px-6 py-3" onClick={() => handleSort("email")}>
-                                Email <span className="float-right">{sortOrder === 'asc' ? '🔼' : '🔽'}</span>
+                            <th scope="col" className="px-6 py-3 border-r border-slate-500">
+                                Avatar
                             </th>
-                            <th scope="col" className="px-6 py-3" onClick={() => handleSort("username")}>
-                                Username <span className="float-right">{sortOrder === 'asc' ? '🔼' : '🔽'}</span>
+                            <th scope="col" className="px-6 py-3 border-r border-slate-500 whitespace-nowrap" onClick={() => handleSort("username")}>
+                                Username {sortOrder === 'asc' ? <UpOutlined /> : <DownOutlined />}
                             </th>
-                            <th scope="col" className="px-6 py-3" onClick={() => handleSort("fullname")}>
-                                Fullname <span className="float-right">{sortOrder === 'asc' ? '🔼' : '🔽'}</span>
+                            <th scope="col" className="px-6 py-3 border-r border-slate-500 whitespace-nowrap" onClick={() => handleSort("email")}>
+                                Email/eメール {sortOrder === 'asc' ? <UpOutlined /> : <DownOutlined />}
                             </th>
-                            <th scope="col" className="px-6 py-3" onClick={() => handleSort("department")}>
-                                Department <span className="float-right">{sortOrder === 'asc' ? '🔼' : '🔽'}</span>
+                            <th scope="col" className="px-6 py-3 border-r border-slate-500 whitespace-nowrap" onClick={() => handleSort("fullname")}>
+                                Fullname/名前 {sortOrder === 'asc' ? <UpOutlined /> : <DownOutlined />}
                             </th>
-                            <th scope="col" className="px-6 py-3" onClick={() => handleSort("positions")}>
-                                Position <span className="float-right">{sortOrder === 'asc' ? '🔼' : '🔽'}</span>
+                            <th scope="col" className="px-6 py-3 border-r border-slate-500 whitespace-nowrap" onClick={() => handleSort("department")}>
+                                Department {sortOrder === 'asc' ? <UpOutlined /> : <DownOutlined />}
                             </th>
-                            <th scope="col" className="px-6 py-3">
+                            <th scope="col" className="px-6 py-3 border-r border-slate-500 whitespace-nowrap" onClick={() => handleSort("positions")}>
+                                Position {sortOrder === 'asc' ? <UpOutlined /> : <DownOutlined />}
+                            </th>
+                            <th scope="col" className="px-6 py-3 border-r border-slate-500 whitespace-nowrap">
                                 Phone Number
                             </th>
-                            <th scope="col" className="px-6 py-3">
+                            <th scope="col" className="px-6 py-3 border-r border-slate-500 whitespace-nowrap">
                                 Created Date
                             </th>
                             <th scope="col" className="px-6 py-3">
@@ -269,29 +298,37 @@ export default function Page() {
                         {
                             paginatedUserList.map((user, index) =>
                                 <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={index}>
-                                    <td className="px-6 py-4">
+                                    <td className="px-6 py-4 border-r border-slate-500">
                                         {user?.id}
                                     </td>
-                                    <td scope="row" className="px-6 py-4 font-medium text-gray-900 dark:text-white">
+                                    <td className="px-6 py-4 border-r border-slate-500">
+                                        <button
+                                            style={{ width: '100%', height: '100%', cursor: 'pointer', padding: 0, border: 'none', background: 'none' }}
+                                            onClick={() => handleImageClick(user?.image)}
+                                        >
+                                            <img className="rounded-full" style={{ width: '100%', height: '100%' }} src={user?.image} />
+                                        </button>
+                                    </td>
+                                    <td scope="row" className="px-6 py-4 border-r border-slate-500 font-medium text-gray-900 dark:text-white">
                                         {user?.username}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
+                                    <td className="px-6 py-4 border-r border-slate-500 whitespace-nowrap">
                                         {user?.email}
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="px-6 py-4 border-r border-slate-500">
                                         {user?.fullname}
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="px-6 py-4 border-r border-slate-500">
                                         {user?.department}
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="px-6 py-4 border-r border-slate-500">
                                         {user?.positions}
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="px-6 py-4 border-r border-slate-500">
                                         {user?.phone}
                                     </td>
-                                    <td className="px-6 py-4">
-                                        {user?.createDate}
+                                    <td className="px-6 py-4 border-r border-slate-500">
+                                        <ConvertDate date={user?.createDate} />
                                     </td>
                                     <td scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                         <Link href={`/dashboard/customers/details/${user?.id}`}>
@@ -332,17 +369,17 @@ export default function Page() {
                 onPageChange={handlePageChange}
                 containerClassName="pagination flex justify-center dark:text-white"
                 subContainerClassName="pages pagination"
-                activeClassName="active bg-gradient-to-r from-purple-500 to-green-500 text-white"
-                disabledClassName="text-zinc-300 dark:text-zinc-500"
+                activeClassName="active bg-blue-600 text-white"
+                disabledClassName="text-zinc-400"
                 previousLabel={"<-"}
                 nextLabel={"->"}
-                pageClassName="mx-2 my-3 px-1 py-1.5 rounded border-2 border-sky-600"
+                pageClassName="mx-2 my-3 px-1 py-1.5 rounded border-2 border-black dark:border-white"
                 pageLinkClassName="mx-2 my-3 px-1 py-1.5"
-                previousClassName="mx-2 my-3 px-1 py-1.5 rounded border-2 border-sky-600"
+                previousClassName="mx-2 my-3 px-1 py-1.5 rounded border-2 border-black dark:border-white"
                 previousLinkClassName="mx-2 my-3 px-1 py-1.5"
-                nextClassName="mx-2 my-3 px-1 py-1.5 rounded border-2 border-sky-600"
+                nextClassName="mx-2 my-3 px-1 py-1.5 rounded border-2 border-black dark:border-white"
                 nextLinkClassName="mx-2 my-3 px-1 py-1.5"
-                breakClassName="mx-2 my-3 px-1 py-1.5 rounded border-2 border-sky-600"
+                breakClassName="mx-2 my-3 px-1 py-1.5 rounded border-2 border-black dark:border-white"
                 breakLinkClassName="mx-2 my-3 px-1 py-1.5"
             />
             <Modal
@@ -356,7 +393,7 @@ export default function Page() {
                 Are you sure you want to delete this user?
             </Modal>
             <Modal
-                title={modalMode === "add" ? "Add New Product" : "Edit Product"}
+                title={modalMode === "add" ? "Add New User" : "Edit User"}
                 visible={openAdd}
                 onOk={handleSubmit}
                 onCancel={cancelAddModal}
@@ -376,42 +413,58 @@ export default function Page() {
             >
                 <form id="form">
                     <div className='inputContainer'>
-                        <label className='inputTitle'>EMAIL: <span>*</span></label>
-                        <br />
-                        <input className='w-full rounded-lg' type='text' id='email' name='email' value={formValues.email} onChange={handleInputChange} />
+                        <label>EMAIL: <span className="text-red-500">*</span></label>
+                        <input className='w-full rounded-lg mb-2 to-dark' type='text' id='email' name='email' value={formValues.email} onChange={handleInputChange} placeholder="Input Email..." />
                     </div>
 
                     <div className='inputContainer'>
-                        <label className='inputTitle'>USERNAME: <span>*</span></label>
-                        <br />
-                        <input className='w-full rounded-lg' type='text' id='username' name='username' value={formValues.username} onChange={handleInputChange}/>
+                        <label>USERNAME: <span className="text-red-500">*</span></label>
+                        <input className='w-full rounded-lg mb-2 to-dark' type='text' id='username' name='username' value={formValues.username} onChange={handleInputChange} placeholder="Input User Name..." />
                     </div>
 
                     <div className='inputContainer'>
-                        <label className='inputTitle'>FULLNAME: <span>*</span></label>
-                        <br />
-                        <input className='w-full rounded-lg mb-4' type='text' id='fullname' name='fullname' value={formValues.fullname} onChange={handleInputChange}/>
+                        <label>FULLNAME: <span className="text-red-500">*</span></label>
+                        <input className='w-full rounded-lg mb-2 to-dark' type='text' id='fullname' name='fullname' value={formValues.fullname} onChange={handleInputChange} placeholder="Input Full Name..." />
                     </div>
 
                     <div className='inputContainer'>
-                        <label className='inputTitle'>PHONE NUMBER: <span>*</span></label>
-                        <br />
-                        <input className='w-full rounded-lg mb-4' type='text' id='phone' name='phone' value={formValues.phone} onChange={handleInputChange}/>
+                        <label>PHONE NUMBER: <span className="text-red-500">*</span></label>
+                        <input className='w-full rounded-lg mb-6 to-dark' type='text' id='phone' name='phone' value={formValues.phone} onChange={handleInputChange} placeholder="Input Phone Number..." />
                     </div>
 
                     <div className='inputContainer'>
-                        <label className='mr-3'>DEPARTMENT: <span>*</span></label>
-                        <select className='w-28 rounded-lg' style={{ marginRight: '30px' }} id="department" name='department' value={formValues.department} onChange={handleInputChange}>
+                        <label className='mr-3'>DEPARTMENT: <span className="text-red-500">*</span></label>
+                        <select className='w-28 rounded-lg to-dark' style={{ marginRight: '30px' }} id="department" name='department' value={formValues.department} onChange={handleInputChange}>
                             <option value="SAP">SAP</option>
                             <option value="CF">CF</option>
                         </select>
-                        <label className='mr-3.5'>POSITIONS: <span>*</span></label>
-                        <select className='w-28 rounded-lg' id="positions" name='positions' value={formValues.positions} onChange={handleInputChange}>
+                        <label className='mr-3.5'>POSITIONS: <span className="text-red-500">*</span></label>
+                        <select className='w-28 rounded-lg to-dark' id="positions" name='positions' value={formValues.positions} onChange={handleInputChange}>
                             <option value="Leader">Leader</option>
                             <option value="Intern">Intern</option>
                         </select>
                     </div>
+
+                    <p className="mt-4">The field with "<span className="text-red-500">*</span>" mark is required</p>
                 </form>
+            </Modal>
+            <Modal
+                title="View Details Image"
+                visible={openImageDetails}
+                onOk={hideImageModal}
+                okText="Close"
+                footer={(_, { OkBtn }) => (
+                    <>
+                        <OkBtn />
+                    </>
+                )}
+                className="hide-x"
+            >
+                <>
+                    {selectedImage && (
+                        <img style={{ width: '100%', height: '100%' }} src={selectedImage} alt="Selected Image" />
+                    )}
+                </>
             </Modal>
         </>
     )

@@ -5,7 +5,8 @@ import axios from "axios";
 import ReactPaginate from "react-paginate";
 import {Button, Form, Input, InputNumber, Modal, Skeleton} from "antd";
 import Link from "next/link";
-
+import {DownOutlined, UpOutlined} from "@ant-design/icons";
+import '../styles.css'
 function Search({ productList, setFilteredProducts }) {
     const [searchQuery, setSearchQuery] = useState("");
 
@@ -40,9 +41,6 @@ function Search({ productList, setFilteredProducts }) {
                            value={searchQuery}
                            onChange={handleSearch}
                     />
-                    <button type="submit"
-                            className="text-white absolute right-2.5 bottom-1 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search
-                    </button>
                 </div>
             </form>
         </>
@@ -56,20 +54,42 @@ function CollapsibleText({ text, maxChars }) {
     };
 
     return (
-        <div>
+        <>
             {isCollapsed ? (
                 <div>
-                    {text.length > maxChars ? text.slice(0, maxChars) : text}
-                    <p>...<span onClick={toggleCollapse} className="text-black dark:text-white hover:cursor-pointer hover:underline">More</span></p>
+                    {text.length > maxChars ? text.slice(0, maxChars) : text}...
+                    <button className="py-3 pr-3"><span onClick={toggleCollapse} className="p-1 bg-cyan-600 hover:bg-cyan-900 text-white hover:cursor-pointer rounded-lg">More</span></button>
                 </div>
             ) : (
                 <div>
                     {text}
-                    <p onClick={toggleCollapse} className="text-black dark:text-white hover:cursor-pointer hover:underline">Less</p>
+                    <p><button className="py-3 pr-3"><span onClick={toggleCollapse} className="p-1 bg-cyan-600 hover:bg-cyan-900 text-white hover:cursor-pointer rounded-lg">Less</span></button></p>
                 </div>
             )}
-        </div>
+        </>
     );
+}
+
+function ConvertDate({ date }) {
+    const inputDate = date;
+    const dateObj = new Date(inputDate);
+    const formattedDate = dateObj.toLocaleString("en-GB", {timeZone: "UTC"});
+
+    return (
+        <>
+            {formattedDate}
+        </>
+    )
+}
+
+function DotPrice({ number }) {
+    const formattedNumber = number.toLocaleString('en-US', { useGrouping: true });
+
+    return (
+        <>
+            {formattedNumber}
+        </>
+    )
 }
 
 export default function Page() {
@@ -80,8 +100,10 @@ export default function Page() {
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
     const [openAdd, setOpenAdd] = useState(false);
+    const [openImageDetails, setOpenImageDetails] = useState(false);
     const [productToDelete, setProductToDelete] = useState(null);
     const [modalMode, setModalMode] = useState('add');
+    const [selectedImage, setSelectedImage] = useState(null);
     const [formValues, setFormValues] = useState({
         productName: '',
         price: 0,
@@ -125,6 +147,14 @@ export default function Page() {
     const cancelAddModal = () => {
         setOpenAdd(false);
         resetForm()
+    }
+
+    const showImageModal = () => {
+        setOpenImageDetails(true);
+    }
+
+    const hideImageModal = () => {
+        setOpenImageDetails(false);
     }
 
     const getProduct = async () => {
@@ -207,6 +237,7 @@ export default function Page() {
                         )
                     );
                 }
+                alert('Successfully!');
                 setOpenAdd(false);
                 resetForm();
             }
@@ -226,6 +257,11 @@ export default function Page() {
         });
         setProductList(sortedProductList)
         setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    }
+
+    const handleImageClick = (image) => {
+        setSelectedImage(image);
+        showImageModal();
     }
 
     async function deleteProduct(id: number) {
@@ -257,45 +293,45 @@ export default function Page() {
     return (
         <>
             <button type="button"
-                    className="text-white bg-gradient-to-br from-green-400 to-blue-600 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+                    className="bg-slate-300 text-black hover:bg-slate-100 dark:bg-slate-500 dark:text-white dark:hover:bg-slate-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
                     onClick={showAddModal}>Add New Product
             </button>
             <Search productList={productList} setFilteredProducts={setFilteredProducts}/>
             <div className="relative overflow-x-auto">
                 <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                    <thead className="text-xs text-gray-100 uppercase bg-gradient-to-r from-cyan-500 to-blue-500 dark:bg-gradient-to-r dark:from-indigo-500 dark:via-purple-500 dark:to-pink-500">
+                    <thead className="text-xs text-gray-700 dark:text-gray-200 uppercase bg-stone-200 dark:bg-zinc-700">
                         <tr>
-                            <th scope="col" className="px-6 py-3">
+                            <th scope="col" className="px-6 py-3 border-r border-slate-500">
                                 #
                             </th>
-                            <th scope="col" className="px-6 py-3" onClick={() => handleSort("productName")}>
-                                Product Name <span className="float-right">{sortOrder === 'asc' ? '🔼' : '🔽'}</span>
+                            <th scope="col" className="px-6 py-3 border-r border-slate-500" onClick={() => handleSort("productName")}>
+                                Product Name <span className="float-right">{sortOrder === 'asc' ? <UpOutlined /> : <DownOutlined />}</span>
                             </th>
-                            <th scope="col" className="px-6 py-3">
+                            <th scope="col" className="px-6 py-3 border-r border-slate-500">
                                 Price
                             </th>
-                            <th scope="col" className="px-6 py-3">
+                            <th scope="col" className="px-6 py-3 border-r border-slate-500 whitespace-nowrap">
                                 Rating Point
                             </th>
-                            <th scope="col" className="px-6 py-3">
+                            <th scope="col" className="px-6 py-3 border-r border-slate-500">
                                 Quantity
                             </th>
-                            <th scope="col" className="px-6 py-3">
+                            <th scope="col" className="px-6 py-3 border-r border-slate-500 whitespace-nowrap">
                                 Sold Quantity
                             </th>
-                            <th scope="col" className="px-6 py-3">
+                            <th scope="col" className="px-6 py-3 border-r border-slate-500 whitespace-nowrap">
                                 % Discount
                             </th>
-                            <th scope="col" className="px-6 py-3">
+                            <th scope="col" className="px-6 py-3 border-r border-slate-500">
                                 Special
                             </th>
-                            <th scope="col" className="px-6 py-3">
+                            <th scope="col" className="px-6 py-3 border-r border-slate-500">
                                 Image
                             </th>
-                            <th scope="col" className="px-6 py-3" onClick={() => handleSort("description")}>
-                                Description <span className="float-right">{sortOrder === 'asc' ? '🔼' : '🔽'}</span>
+                            <th scope="col" className="px-3 py-3 border-r border-slate-500 whitespace-nowrap" onClick={() => handleSort("description")}>
+                                Description &nbsp;&nbsp; <span className="float-right">{sortOrder === 'asc' ? <UpOutlined /> : <DownOutlined />}</span> &nbsp;&nbsp;&nbsp;&nbsp;
                             </th>
-                            <th scope="col" className="px-6 py-3">
+                            <th scope="col" className="px-6 py-3 border-r border-slate-500 whitespace-nowrap">
                                 Created Date
                             </th>
                             <th scope="col" className="px-6 py-3">
@@ -308,38 +344,43 @@ export default function Page() {
                         {
                             paginatedProductList.map((product, index) =>
                                 <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700" key={index}>
-                                    <td className="px-6 py-4">
+                                    <td className="px-6 py-4 border-r border-slate-500">
                                         {product?.id}
                                     </td>
-                                    <td scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                    <td scope="row" className="px-6 py-4 border-r border-slate-500 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                         {product?.productName}
                                     </td>
-                                    <td className="px-6 py-4">
-                                        {product?.price}₫
+                                    <td className="px-6 py-4 border-r border-slate-500 text-center">
+                                        <DotPrice number={product?.price} />₫
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="px-6 py-4 border-r border-slate-500 text-center">
                                         {product?.ratingPoint}
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="px-6 py-4 border-r border-slate-500 text-center">
                                         {product?.quantity}
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="px-6 py-4 border-r border-slate-500 text-center">
                                         {product?.soldQuantity}
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="px-6 py-4 border-r border-slate-500 text-center">
                                         {product?.discount}
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="px-2 py-4 border-r border-slate-500">
                                         {product?.special}% of portion pay
                                     </td>
-                                    <td className="px-6 py-4">
-                                        <img style={{ width: '50%', height: '50%' }} src={product?.image} />
+                                    <td className="px-2 py-4 border-r border-slate-500">
+                                        <button
+                                            style={{ width: '100%', height: '100%', cursor: 'pointer', padding: 0, border: 'none', background: 'none' }}
+                                            onClick={() => handleImageClick(product?.image)}
+                                        >
+                                            <img style={{ width: '100%', height: '100%' }} src={product?.image} alt="Product Image" />
+                                        </button>
                                     </td>
-                                    <td className="px-6 py-4">
+                                    <td className="px-3 py-4 border-r border-slate-500">
                                         <CollapsibleText text={product?.description} maxChars={10} />
                                     </td>
-                                    <td className="px-6 py-4">
-                                        {product?.createDate}
+                                    <td className="px-6 py-4 border-r border-slate-500">
+                                        <ConvertDate date={product?.createDate} />
                                     </td>
                                     <td scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                         <Link href={`/dashboard/products/details/${product?.id}`}>
@@ -382,17 +423,17 @@ export default function Page() {
                 onPageChange={handlePageChange}
                 containerClassName="pagination flex justify-center dark:text-white"
                 subContainerClassName="pages pagination"
-                activeClassName="active bg-gradient-to-r from-purple-500 to-green-500 text-white"
-                disabledClassName="text-zinc-300 dark:text-zinc-500"
+                activeClassName="active bg-blue-600 text-white"
+                disabledClassName="text-zinc-400"
                 previousLabel={"<-"}
                 nextLabel={"->"}
-                pageClassName="mx-2 my-3 px-1 py-1.5 rounded border-2 border-sky-600"
+                pageClassName="mx-2 my-3 px-1 py-1.5 rounded border-2 border-black dark:border-white"
                 pageLinkClassName="mx-2 my-3 px-1 py-1.5"
-                previousClassName="mx-2 my-3 px-1 py-1.5 rounded border-2 border-sky-600"
+                previousClassName="mx-2 my-3 px-1 py-1.5 rounded border-2 border-black dark:border-white"
                 previousLinkClassName="mx-2 my-3 px-1 py-1.5"
-                nextClassName="mx-2 my-3 px-1 py-1.5 rounded border-2 border-sky-600"
+                nextClassName="mx-2 my-3 px-1 py-1.5 rounded border-2 border-black dark:border-white"
                 nextLinkClassName="mx-2 my-3 px-1 py-1.5"
-                breakClassName="mx-2 my-3 px-1 py-1.5 rounded border-2 border-sky-600"
+                breakClassName="mx-2 my-3 px-1 py-1.5 rounded border-2 border-black dark:border-white"
                 breakLinkClassName="mx-2 my-3 px-1 py-1.5"
             />
             <Modal
@@ -423,61 +464,74 @@ export default function Page() {
                         {modalMode === "add" ? "Add" : "Save"}
                     </Button>,
                 ]}
-                className="custom-bg"
             >
                 <form id="form">
                     <div className='inputContainer'>
-                        <label className='inputTitle'>PRODUCT NAME: <span>*</span></label>
-                        <br />
-                        <input className='w-full rounded-lg' type='text' id='productName' name='productName' value={formValues.productName} onChange={handleInputChange} />
+                        <label>PRODUCT NAME: <span className="text-red-500">*</span></label>
+                        <input className='w-full rounded-lg mb-2 to-dark' type='text' id='productName' name='productName' value={formValues.productName} onChange={handleInputChange} placeholder="Input Product Name..." />
                     </div>
 
                     <div className='inputContainer'>
-                        <label className='inputTitle'>PRICE: <span>*</span></label>
-                        <br />
-                        <input className='w-full rounded-lg' type='number' id='price' name='price' value={formValues.price} onChange={handleInputChange}/>
+                        <label>PRICE: <span className="text-red-500">*</span></label>
+                        <input className='w-full rounded-lg mb-2 to-dark' type='number' id='price' name='price' value={formValues.price} onChange={handleInputChange} placeholder="Input Price..." />
                     </div>
 
                     <div className='inputContainer'>
-                        <label className='inputTitle'>RATING POINT: <span>*</span></label>
-                        <br />
-                        <input className='w-full rounded-lg' type='number' id='ratingPoint' name='ratingPoint' value={formValues.ratingPoint} onChange={handleInputChange}/>
+                        <label>RATING POINT: <span className="text-red-500">*</span></label>
+                        <input className='w-full rounded-lg mb-2 to-dark' type='number' id='ratingPoint' name='ratingPoint' value={formValues.ratingPoint} onChange={handleInputChange} placeholder="Input Rating Point..." />
                     </div>
 
                     <div className='inputContainer'>
-                        <label className='inputTitle'>QUANTITY: <span>*</span></label>
-                        <br />
-                        <input className='w-full rounded-lg' type='number' id='quantity' name='quantity' value={formValues.quantity} onChange={handleInputChange}/>
+                        <label>QUANTITY: <span className="text-red-500">*</span></label>
+                        <input className='w-full rounded-lg mb-2 to-dark' type='number' id='quantity' name='quantity' value={formValues.quantity} onChange={handleInputChange} placeholder="Input Quantity..." />
                     </div>
 
                     <div className='inputContainer'>
-                        <label className='inputTitle'>SOLD QUANTITY: <span>*</span></label>
-                        <br />
-                        <input className='w-full rounded-lg' type='number' id='soldQuantity' name='soldQuantity' value={formValues.soldQuantity} onChange={handleInputChange}/>
+                        <label>SOLD QUANTITY: <span className="text-red-500">*</span></label>
+                        <input className='w-full rounded-lg mb-2 to-dark' type='number' id='soldQuantity' name='soldQuantity' value={formValues.soldQuantity} onChange={handleInputChange} placeholder="Input Sold Quantity..." />
                     </div>
 
                     <div className='inputContainer'>
-                        <label className='inputTitle'>DESCRIPTION: <span>*</span></label>
-                        <br />
-                        <textarea type="text" className='w-full rounded-lg mb-4' id='description' name='description' value={formValues.description} onChange={handleInputChange}/>
+                        <label>DESCRIPTION: <span className="text-red-500">*</span></label>
+                        <textarea type="text" className='w-full rounded-lg mb-6 to-dark' id='description' name='description' value={formValues.description} onChange={handleInputChange} placeholder="Input Description..." />
                     </div>
 
                     <div className='inputContainer'>
-                        <label className='mr-3'>% DISCOUNT: <span>*</span></label>
-                        <select className='w-32 rounded-lg' style={{ marginRight: '30px' }} id="discount" name="discount" value={formValues.discount} onChange={handleInputChange}>
+                        <label className='mr-3'>% DISCOUNT: <span className="text-red-500">*</span></label>
+                        <select className='w-32 rounded-lg to-dark' style={{ marginRight: '30px' }} id="discount" name="discount" value={formValues.discount} onChange={handleInputChange}>
                             <option value="7.5">7.5</option>
                             <option value="9">9</option>
                             <option value="10">10</option>
                             <option value="12">12</option>
                         </select>
-                        <label className='mr-3.5'>SPECIAL: <span>*</span></label>
-                        <select className='w-32 rounded-lg' id="special" name="special" value={formValues.special} onChange={handleInputChange}>
+                        <label className='mr-3.5'>SPECIAL: <span className="text-red-500">*</span></label>
+                        <select className='w-32 rounded-lg to-dark' id="special" name="special" value={formValues.special} onChange={handleInputChange}>
                             <option value="0">0</option>
                             <option value="5">5</option>
                             <option value="7">7</option>
                         </select>
                     </div>
+
+                    <p className="mt-4">The field with "<span className="text-red-500">*</span>" mark is required</p>
                 </form>
+            </Modal>
+            <Modal
+                title="View Details Image"
+                visible={openImageDetails}
+                onOk={hideImageModal}
+                okText="Close"
+                footer={(_, { OkBtn }) => (
+                    <>
+                        <OkBtn />
+                    </>
+                )}
+                className="hide-x"
+            >
+                <>
+                    {selectedImage && (
+                        <img style={{ width: '100%', height: '100%' }} src={selectedImage} alt="Selected Image" />
+                    )}
+                </>
             </Modal>
         </>
     )

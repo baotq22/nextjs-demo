@@ -5,8 +5,18 @@ import axios from "axios";
 import Link from "next/link";
 import "./styles.css"
 import ReactPaginate from "react-paginate";
-import {Card, Col, Row, Skeleton, Statistic} from "antd";
+import {Card, Col, Modal, Row, Skeleton, Statistic} from "antd";
 import {ShoppingOutlined, UserOutlined} from "@ant-design/icons";
+
+function DotPrice({ number }) {
+    const formattedNumber = number.toLocaleString('en-US', { useGrouping: true });
+
+    return (
+        <>
+            {formattedNumber}
+        </>
+    )
+}
 
 export default function Page() {
     const [productList, setProductList] = useState([]);
@@ -14,6 +24,16 @@ export default function Page() {
     const [currentPage, setCurrentPage] = useState(0);
     const itemPerPage = 8;
     const [loading, setLoading] = useState(false);
+    const [openImageDetails, setOpenImageDetails] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
+
+    const showImageModal = () => {
+        setOpenImageDetails(true);
+    }
+
+    const hideImageModal = () => {
+        setOpenImageDetails(false);
+    }
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -42,6 +62,11 @@ export default function Page() {
     const handlePageChange = (selectedPage) => {
         setCurrentPage(selectedPage.selected);
     };
+
+    const handleImageClick = (image) => {
+        setSelectedImage(image);
+        showImageModal();
+    }
 
     const paginatedProductList = productList.slice(
         currentPage * itemPerPage,
@@ -89,25 +114,29 @@ export default function Page() {
                                                 rounded-e-xl
                                                 rounded-es-xl
                                                 p-5 mx-3.5 mb-8 mt-0
-                                                bg-gradient-to-r from-pink-300 from-0% to-sky-400 to-100%" key={index}>
-                                    <Link href={`dashboard/products/details/${product.id}`}>
-                                        <small className="text-white
+                                                bg-neutral-100 dark:bg-neutral-700" key={index}>
+                                    <small className="text-white
                                                           py-1.5 px-2.5 top-0 right-0
                                                           rounded-ee-xl
-                                                          bg-gradient-to-r from-cyan-500 from-0% via-sky-800 via-50% to-fuchsia-700 to-100%">Portion pay {product.special}%</small>
-                                        <div className="products__img my-1.5">
-                                            <a href={`dashboard/products/details/${product.id}`} className="my-1.5 flex items-center justify-center h-64">
+                                                          bg-indigo-500">Portion pay {product.special}%</small>
+                                    <div className="products__img my-1.5">
+                                        <div className="my-1.5 flex items-center justify-center h-64">
+                                            <button
+                                                style={{ width: '100%', height: '100%', cursor: 'pointer', padding: 0, border: 'none', background: 'none' }}
+                                                onClick={() => handleImageClick(product?.image)}
+                                            >
                                                 <img className="max-w-full inline-block" src={product.image} />
-                                            </a>
+                                            </button>
                                         </div>
-                                        <p className="products__title text-lg text-center text-black mb-4">{product.productName}</p>
-                                        <p className="text-red-600 text-center text-base">
-                                            <span>{product.price}₫</span>
-                                            <span className="bg-slate-100 ml-2 text-red-600 text-base p-1 rounded-md pl-2.5">-{product.discount}% SALE</span>
+                                    </div>
+                                    <Link href={`dashboard/products/details/${product.id}`}>
+                                        <p className="products__title text-lg text-center text-black dark:text-white mb-4">{product.productName}</p>
+                                        <p className="text-center text-base">
+                                            <span className="text-red-600 dark:text-red-300"><DotPrice number={product?.price} />₫</span>
+                                            <span className="bg-slate-300 ml-2 text-red-600 text-base p-1 rounded-md pl-2.5">-{product.discount}% SALE</span>
                                         </p>
-                                        <div className="text-center">
-                                            <span className="text-sm p-1">{product.ratingPoint}</span>
-                                            <span className="text-sm p-1"><i className="fa-solid fa-star" style={{ color: '#f9c61f' }}></i></span>
+                                        <div className="text-center text-black dark:text-white">
+                                            <span className="text-sm p-1">{product.ratingPoint} points</span>
                                             <span className="text-sm p-1">({product.quantity} sold)</span>
                                         </div>
                                     </Link>
@@ -124,19 +153,37 @@ export default function Page() {
                 onPageChange={handlePageChange}
                 containerClassName="pagination flex justify-center dark:text-white"
                 subContainerClassName="pages pagination"
-                activeClassName="active bg-gradient-to-r from-purple-500 to-green-500 text-white"
-                disabledClassName="text-zinc-300"
+                activeClassName="active bg-blue-600 text-white"
+                disabledClassName="text-zinc-400"
                 previousLabel={"<-"}
                 nextLabel={"->"}
-                pageClassName="mx-2 my-3 px-1 py-1.5 rounded border-2 border-sky-600"
+                pageClassName="mx-2 my-3 px-1 py-1.5 rounded border-2 border-black dark:border-white"
                 pageLinkClassName="mx-2 my-3 px-1 py-1.5"
-                previousClassName="mx-2 my-3 px-1 py-1.5 rounded border-2 border-sky-600"
+                previousClassName="mx-2 my-3 px-1 py-1.5 rounded border-2 border-black dark:border-white"
                 previousLinkClassName="mx-2 my-3 px-1 py-1.5"
-                nextClassName="mx-2 my-3 px-1 py-1.5 rounded border-2 border-sky-600"
+                nextClassName="mx-2 my-3 px-1 py-1.5 rounded border-2 border-black dark:border-white"
                 nextLinkClassName="mx-2 my-3 px-1 py-1.5"
-                breakClassName="mx-2 my-3 px-1 py-1.5 rounded border-2 border-sky-600"
+                breakClassName="mx-2 my-3 px-1 py-1.5 rounded border-2 border-black dark:border-white"
                 breakLinkClassName="mx-2 my-3 px-1 py-1.5"
             />
+            <Modal
+                title="View Details Image"
+                visible={openImageDetails}
+                onOk={hideImageModal}
+                okText="Close"
+                footer={(_, { OkBtn }) => (
+                    <>
+                        <OkBtn />
+                    </>
+                )}
+                className="hide-x"
+            >
+                <>
+                    {selectedImage && (
+                        <img style={{ width: '100%', height: '100%' }} src={selectedImage} alt="Selected Image" />
+                    )}
+                </>
+            </Modal>
         </>
     )
 }

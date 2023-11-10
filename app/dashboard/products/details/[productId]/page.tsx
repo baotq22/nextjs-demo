@@ -4,6 +4,16 @@ import React, {useState, useEffect} from 'react';
 import {api} from "@/app/axios-instance";
 import {Skeleton} from "antd";
 
+function DotPrice({ number }) {
+    const formattedNumber = number.toLocaleString('en-US', { useGrouping: true });
+
+    return (
+        <>
+            {formattedNumber}
+        </>
+    )
+}
+
 export default function Page({
     params: {productId},
 }: {
@@ -22,13 +32,13 @@ export default function Page({
     }, [])
 
     return (
-        <div className="max-w-7xl mx-auto my-0">
-            <div className="mb-8 drop-shadow-2xl">
+        <div className="mx-auto my-0">
+            <div className="drop-shadow-2xl">
                 <div className="p-12 mt-12 leading-6
-                                bg-gradient-to-r from-teal-700 from-24% to-fuchsia-600 to-100%">
+                                bg-neutral-200 dark:bg-neutral-700">
                     {loading ? (
                         <>
-                            <h2 className="text-black text-2xl dark:text-white">Loading....</h2>
+                            <h2 className="text-2xl text-black dark:text-white">Loading....</h2>
                             <Skeleton paragraph={{ rows: 4 }} active />
                             <Skeleton paragraph={{ rows: 4 }} active />
                         </>
@@ -45,27 +55,27 @@ export default function Page({
                                                   text-white
                                                   py-1.5 px-2.5 top-0 right-0
                                                   rounded-ee-xl
-                                                  bg-gradient-to-r from-fuchsia-500 from-0% via-indigo-700 via-100% to-fuchsia-600 to-100%">{product?.discount}% DISCOUNT</small>
-                                    <h3 className="mt-0 text-2xl">{product?.productName}</h3>
+                                                  bg-lime-500">{product?.discount}% DISCOUNT</small>
+                                    <h3 className="mt-0 text-2xl text-black dark:text-white">{product?.productName}</h3>
                                     <div className="mb-4">
-                                        <span className="text-teal-300">{product?.ratingPoint}</span><span> reviews</span>
+                                        <span className="text-teal-600 dark:text-teal-300">{product?.ratingPoint}</span><span className="text-black dark:text-white"> reviews</span>
                                     </div>
-                                    <p className="mb-4">{product?.description}</p>
-                                    <h4 className="mb-4 uppercase">current price: <span className="text-emerald-300">{product?.price}₫</span></h4>
-                                    <h2 className="mb-4"><strong>{product?.soldQuantity}</strong> of buyers enjoyed this product! <strong>({product?.quantity} in Stock)</strong></h2>
+                                    <p className="mb-4 text-black dark:text-white">{product?.description}</p>
+                                    <h4 className="mb-4 uppercase text-black dark:text-white">current price: <span className="text-emerald-600 dark:text-emerald-300"><DotPrice number={product?.price} />₫</span></h4>
+                                    <h2 className="mb-4 text-black dark:text-white"><strong>{product?.soldQuantity}</strong> of buyers enjoyed this product! <strong>({product?.quantity} in Stock)</strong></h2>
                                     <h2 className="mb-4">
-                                        <strong>Special offers?</strong>
-                                        <p><small className="py-1.5 px-2.5 top-0 right-0
+                                        <strong className="text-black dark:text-white">Special offers?</strong>
+                                        <p className="mb-4"><small className="py-0.5 px-2.5 top-0 right-0
                                                          text-base
-                                                         bg-gradient-to-r from-cyan-500 from-0% via-sky-800 via-50% to-fuchsia-700 to-100%">{product?.special}% protion pay</small></p>
+                                                         bg-emerald-600">{product?.special}% protion pay</small></p>
                                     </h2>
                                     <div className="action">
                                         <button className="py-5 px-6
                                                        border-none
                                                        uppercase
                                                        font-bold text-white
-                                                       bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90%
-                                                       hover:bg-gradient-to-r hover:from-indigo-700 hover:from-10% hover:via-sky-700 hover:via-30% hover:to-emerald-700 hover:to-90%"
+                                                       bg-indigo-500
+                                                       hover:bg-indigo-800"
                                         >add to cart</button>
                                     </div>
                                 </div>

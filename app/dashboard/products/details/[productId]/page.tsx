@@ -61,7 +61,7 @@ export default function Page({
                                         <span className="text-teal-600 dark:text-teal-300">{product?.ratingPoint}</span><span className="text-black dark:text-white"> reviews</span>
                                     </div>
                                     <p className="mb-4 text-black dark:text-white">{product?.description}</p>
-                                    <h4 className="mb-4 uppercase text-black dark:text-white">current price: <span className="text-emerald-600 dark:text-emerald-300"><DotPrice number={product?.price} />₫</span></h4>
+                                    <h4 className="mb-4 uppercase text-black dark:text-white">current price: <p className="text-4xl text-emerald-600 dark:text-emerald-300"><DotPrice number={product?.price} />₫</p></h4>
                                     <h2 className="mb-4 text-black dark:text-white"><strong>{product?.soldQuantity}</strong> of buyers enjoyed this product! <strong>({product?.quantity} in Stock)</strong></h2>
                                     <h2 className="mb-4">
                                         <strong className="text-black dark:text-white">Special offers?</strong>

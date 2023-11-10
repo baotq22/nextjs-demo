@@ -58,10 +58,15 @@
         color: #fff;
     }
 
-    .ant-modal .ant-modal-content .ant-modal-footer .ant-btn-primary
-    .ant-modal .ant-modal-content .ant-modal-footer .ant-btn-primary:disabled {
+    .ant-modal .ant-modal-content .ant-modal-footer .ant-btn-primary {
         border: 1px solid #fff;
         color: #fff
+    }
+
+
+    .ant-modal .ant-modal-content .ant-modal-footer .ant-btn-primary:disabled {
+        border: 1px solid #fff;
+        color: #a1a1aa
     }
 
     .hide-x .ant-modal-content .ant-modal-close .ant-modal-close-x .anticon-close {

@@ -117,6 +117,10 @@ export default function Page() {
     const [isEnabledSubmitButton, setIsEnabledSubmitButton] = useState(false);
     const [sortOrder, setSortOrder] = useState('asc');
 
+    const productNameRegex = /^[a-zA-Z0-9_\s]+$/;
+
+    const [productNameError, setProductNameError] = useState(null);
+
     const resetForm = () => {
         setFormValues({
             productName: '',
@@ -128,6 +132,7 @@ export default function Page() {
             discount: '7.5',
             special: '0'
         });
+        setProductNameError(null);
     };
 
     const showModal = (product) => {
@@ -208,10 +213,14 @@ export default function Page() {
             [id]: type === 'file' ? files[0] : value,
         }));
 
+        if (id === 'productName') {
+            setProductNameError(productNameRegex.test(value) ? null : 'Invalid product name format');
+        }
+
         const requiredFields = ["productName", "price", "ratingPoint", "quantity", "soldQuantity", "description"];
         const allFieldsFilled = requiredFields.every((field) => formValues[field]);
         setIsEnabledSubmitButton(allFieldsFilled);
-        setIsEnabledSubmitButton(areAllFieldsFilled());
+        setIsEnabledSubmitButton(areAllFieldsFilled() && !productNameError);
     };
 
     const handleSubmit = async () => {
@@ -469,6 +478,7 @@ export default function Page() {
                     <div className='inputContainer'>
                         <label>PRODUCT NAME: <span className="text-red-500">*</span></label>
                         <input className='w-full rounded-lg mb-2 to-dark' type='text' id='productName' name='productName' value={formValues.productName} onChange={handleInputChange} placeholder="Input Product Name..." />
+                        {productNameError && <p className="text-red-500">{productNameError}</p> }
                     </div>
 
                     <div className='inputContainer'>

@@ -82,6 +82,16 @@ export default function Page() {
     const [isEnabledSubmitButton, setIsEnabledSubmitButton] = useState(false);
     const [sortOrder, setSortOrder] = useState('asc');
 
+    const emailRegex = /^[a-zA-Z0-9][a-zA-Z0-9_.+-]{1,}@[a-z0-9]{1,}(\.[a-z0-9]{1,}){1,2}$/;
+    const userNameRegex = /^[a-zA-Z0-9_]+$/;
+    const fullNameRegex = /^[a-zA-Z\s]+$/;
+    const phoneRegex = /^(0[35789])[0-9]{8}$/
+
+    const [emailError, setEmailError] = useState(null);
+    const [userNameError, setUserNameError] = useState(null);
+    const [fullNameError, setFullNameError] = useState(null);
+    const [phoneError, setPhoneError] = useState(null);
+
     const resetForm = () => {
         setFormValues({
             email: '',
@@ -89,8 +99,12 @@ export default function Page() {
             fullname: '',
             department: 'SAP',
             positions: 'Leader',
-            phone: ''
+            phone: '',
         });
+        setEmailError(null);
+        setUserNameError(null);
+        setFullNameError(null);
+        setPhoneError(null);
     };
 
     const showModal = (user) => {
@@ -169,10 +183,26 @@ export default function Page() {
             [id]: type === 'file' ? files[0] : value,
         }));
 
+        if (id === 'email') {
+            setEmailError(emailRegex.test(value) ? null : 'Invalid email format');
+        }
+
+        if (id === 'username') {
+            setUserNameError(userNameRegex.test(value) ? null : 'Invalid user name format');
+        }
+
+        if (id === 'fullname') {
+            setFullNameError(fullNameRegex.test(value) ? null : 'Invalid full name format');
+        }
+
+        if (id === 'phone') {
+            setPhoneError(phoneRegex.test(value) ? null : 'Invalid phone format');
+        }
+
         const requiredFields = ["email", "username", "fullname", "phone",];
         const allFieldsFilled = requiredFields.every((field) => formValues[field]);
         setIsEnabledSubmitButton(allFieldsFilled);
-        setIsEnabledSubmitButton(areAllFiendsFilled());
+        setIsEnabledSubmitButton(areAllFiendsFilled() && !emailError && !userNameError && !fullNameError && !phoneError);
     };
 
     const handleSubmit = async () => {
@@ -415,21 +445,25 @@ export default function Page() {
                     <div className='inputContainer'>
                         <label>EMAIL: <span className="text-red-500">*</span></label>
                         <input className='w-full rounded-lg mb-2 to-dark' type='text' id='email' name='email' value={formValues.email} onChange={handleInputChange} placeholder="Input Email..." />
+                        {emailError && <p className="text-red-500">{emailError}</p> }
                     </div>
 
                     <div className='inputContainer'>
                         <label>USERNAME: <span className="text-red-500">*</span></label>
                         <input className='w-full rounded-lg mb-2 to-dark' type='text' id='username' name='username' value={formValues.username} onChange={handleInputChange} placeholder="Input User Name..." />
+                        {userNameError && <p className="text-red-500">{userNameError}</p> }
                     </div>
 
                     <div className='inputContainer'>
                         <label>FULLNAME: <span className="text-red-500">*</span></label>
                         <input className='w-full rounded-lg mb-2 to-dark' type='text' id='fullname' name='fullname' value={formValues.fullname} onChange={handleInputChange} placeholder="Input Full Name..." />
+                        {fullNameError && <p className="text-red-500">{fullNameError}</p> }
                     </div>
 
                     <div className='inputContainer'>
                         <label>PHONE NUMBER: <span className="text-red-500">*</span></label>
                         <input className='w-full rounded-lg mb-6 to-dark' type='text' id='phone' name='phone' value={formValues.phone} onChange={handleInputChange} placeholder="Input Phone Number..." />
+                        {phoneError && <p className="text-red-500">{phoneError}</p> }
                     </div>
 
                     <div className='inputContainer'>

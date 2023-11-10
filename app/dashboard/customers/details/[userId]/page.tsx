@@ -3,6 +3,7 @@
 import React, {useEffect, useState} from "react";
 import {api} from "@/app/axios-instance";
 import {Skeleton} from "antd";
+import imageLoading from "@/public/laodingimg.jpg"
 
 export default function Page({
     params: {userId},
@@ -33,7 +34,16 @@ export default function Page({
                 ): (
                     <>
                         <div className="flex mt-12 justify-center items-center overflow-hidden">
-                            <img src={user?.imageMain} className="shrink-0 min-w-full" style={{maxHeight: "300px", objectFit: "cover"}} />
+                            {loading ? (
+                                <>
+                                    <img src={imageLoading} className="shrink-0 min-w-full" style={{maxHeight: "300px", objectFit: "cover"}} />
+                                </>
+                            ) : (
+                                <>
+                                    <img src={user?.imageMain} className="shrink-0 min-w-full" style={{maxHeight: "300px", objectFit: "cover"}} />
+                                </>
+                            )}
+
                         </div>
                         <div className="p-12 flex leading-6
                                     bg-neutral-200 dark:bg-neutral-700" style={{marginTop: "-100px"}}>

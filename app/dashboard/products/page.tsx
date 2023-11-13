@@ -7,18 +7,26 @@ import {Button, Form, Input, InputNumber, Modal, Skeleton} from "antd";
 import Link from "next/link";
 import {DownOutlined, UpOutlined} from "@ant-design/icons";
 import '../styles.css'
+
 function Search({ productList, setFilteredProducts }) {
     const [searchQuery, setSearchQuery] = useState("");
 
-    const handleSearch = (e) => {
+    const handleSearch = async (e) => {
         const query = e.target.value.toLowerCase();
         setSearchQuery(query);
 
-        const filteredProducts = productList.filter((product) =>
-            product.productName.toLowerCase().includes(query)
-        );
+        // const filteredProducts = productList.filter((product) =>
+        //     product.productName.toLowerCase().includes(query)
+        // );
 
-        setFilteredProducts(filteredProducts);
+        // setFilteredProducts(filteredProducts);
+
+        try {
+            const res = await axios.get(`https://64f71db49d77540849531dc0.mockapi.io/product?search=${query}`)
+            setFilteredProducts(res.data.reverse());
+        } catch (e) {
+            console.error(e)
+        }
     };
 
     return (
@@ -185,8 +193,31 @@ export default function Page() {
         setFilteredProducts(productList);
     }, [productList])
 
-    const handlePageChange = (selectedPage) => {
+    const [searchQuery, setSearchQuery] = useState("");
+
+    const handleSearch = async (e) => {
+        const query = e.target.value.toLowerCase();
+        setSearchQuery(query);
+
+        try {
+            const res = await axios.get(`https://64f71db49d77540849531dc0.mockapi.io/product?search=${query}&page=1`);
+            setProductList(res.data.reverse());
+            setFilteredProducts(res.data.reverse());
+            setCurrentPage(0);
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    const handlePageChange = async (selectedPage) => {
         setCurrentPage(selectedPage.selected);
+
+        try {
+            const res = await axios.get(`https://64f71db49d77540849531dc0.mockapi.io/product?search=${searchQuery}&page=${selectedPage.selected + 1}`)
+            setFilteredProducts(res.data.reverse());
+        } catch(e) {
+            console.log(e);
+        }
     };
 
     const paginatedProductList = filteredProducts.slice(
@@ -208,10 +239,26 @@ export default function Page() {
 
     const handleInputChange = (e) => {
         const { id, value, type, files } = e.target;
-        setFormValues((prevValues) => ({
-            ...prevValues,
-            [id]: type === 'file' ? files[0] : value,
-        }));
+
+        if (type === 'file') {
+            setFormValues((prevValues) => ({
+                ...prevValues,
+                [id]: files[0],
+            }));
+
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setSelectedImage(reader.result);
+            };
+            if (files[0]) {
+                reader.readAsDataURL(files[0]);
+            }
+        } else {
+            setFormValues((prevValues) => ({
+                ...prevValues,
+                [id]: value,
+            }));
+        }
 
         if (id === 'productName') {
             setProductNameError(productNameRegex.test(value) ? null : 'Invalid product name format');
@@ -225,14 +272,29 @@ export default function Page() {
 
     const handleSubmit = async () => {
         try {
-            const existingProduct = productList.find((product) => product.productName === formValues.productName)
+            const existingProduct = productList.find((product) => product.productName === formValues.productName);
             if (existingProduct && modalMode === 'add') {
                 alert('This product is already existed. Try again!');
             } else {
                 if (modalMode === 'add') {
+                    const formData = new FormData();
+                    for (const key in formValues) {
+                        formData.append(key, formValues[key]);
+                    }
+
+                    if (formValues.image instanceof File) {
+                        formData.append('image', formValues.image);
+                    }
+
                     const response = await axios.post(
                         'https://64f71db49d77540849531dc0.mockapi.io/product',
-                        formValues
+                        formValues,
+                        formData,
+                        {
+                            headers: {
+                                'Content-Type': 'multipart/form-data',
+                            },
+                        }
                     );
                     setProductList((prevProductList) => [response.data, ...prevProductList]);
                 } else if (modalMode === 'edit' && productToDelete) {
@@ -255,7 +317,7 @@ export default function Page() {
         }
     };
 
-    const handleSort = (field) => {
+    const handleSort = async (field) => {
         const sortedProductList = [...productList];
         sortedProductList.sort((a, b) => {
             if (sortOrder === 'asc') {
@@ -266,6 +328,15 @@ export default function Page() {
         });
         setProductList(sortedProductList)
         setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        // const sortedOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+        //
+        // try {
+        //     const res = await axios.get(`https://64f71db49d77540849531dc0.mockapi.io/product?sortField=${field}&sortOrder=${sortedOrder}`);
+        //     setFilteredProducts(res.data);
+        //     setSortOrder(sortedOrder);
+        // } catch (error) {
+        //     console.error('Error fetching sorted products:', error);
+        // }
     }
 
     const handleImageClick = (image) => {
@@ -305,7 +376,7 @@ export default function Page() {
                     className="bg-slate-300 text-black hover:bg-slate-100 dark:bg-slate-500 dark:text-white dark:hover:bg-slate-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
                     onClick={showAddModal}>Add New Product
             </button>
-            <Search productList={productList} setFilteredProducts={setFilteredProducts}/>
+            <Search productList={productList} setFilteredProducts={setFilteredProducts} handleSearch={handleSearch}/>
             <div className="relative overflow-x-auto">
                 <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                     <thead className="text-xs text-gray-700 dark:text-gray-200 uppercase bg-stone-200 dark:bg-zinc-700">
@@ -382,6 +453,12 @@ export default function Page() {
                                             style={{ width: '100%', height: '100%', cursor: 'pointer', padding: 0, border: 'none', background: 'none' }}
                                             onClick={() => handleImageClick(product?.image)}
                                         >
+                                            {/*<Image*/}
+                                            {/*    src={images}*/}
+                                            {/*    width={1920}*/}
+                                            {/*    height={1280}*/}
+                                            {/*    className="hidden md:block" alt="Product Image"*/}
+                                            {/*/>*/}
                                             <img style={{ width: '100%', height: '100%' }} src={product?.image} alt="Product Image" />
                                         </button>
                                     </td>
@@ -426,7 +503,7 @@ export default function Page() {
                 </table>
             </div>
             <ReactPaginate
-                pageCount={Math.ceil(productList.length / itemPerPage)}
+                pageCount={Math.ceil(filteredProducts.length / itemPerPage)}
                 pageRangeDisplayed={1}
                 marginPagesDisplayed={2}
                 onPageChange={handlePageChange}
@@ -503,10 +580,10 @@ export default function Page() {
 
                     <div className='inputContainer'>
                         <label>DESCRIPTION: <span className="text-red-500">*</span></label>
-                        <textarea type="text" className='w-full rounded-lg mb-6 to-dark' id='description' name='description' value={formValues.description} onChange={handleInputChange} placeholder="Input Description..." />
+                        <textarea type="text" className='w-full rounded-lg mb-2 to-dark' id='description' name='description' value={formValues.description} onChange={handleInputChange} placeholder="Input Description..." />
                     </div>
 
-                    <div className='inputContainer'>
+                    <div className='inputContainer mb-4'>
                         <label className='mr-3'>% DISCOUNT: <span className="text-red-500">*</span></label>
                         <select className='w-32 rounded-lg to-dark' style={{ marginRight: '30px' }} id="discount" name="discount" value={formValues.discount} onChange={handleInputChange}>
                             <option value="7.5">7.5</option>
@@ -522,7 +599,20 @@ export default function Page() {
                         </select>
                     </div>
 
-                    <p className="mt-4">The field with "<span className="text-red-500">*</span>" mark is required</p>
+                    <div className='inputContainer'>
+                        <label className='mr-3'>IMAGE: <span className="text-red-500">*</span></label>
+                        <p>
+                            <input
+                                type="file"
+                                id="image"
+                                name="image"
+                                onChange={handleInputChange}
+                                accept="image/*"
+                            />
+                        </p>
+                    </div>
+
+                    <p className="mt-4">The field with &quot;<span className="text-red-500">*</span>&quot; mark is required</p>
                 </form>
             </Modal>
             <Modal

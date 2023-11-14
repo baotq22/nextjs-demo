@@ -15,12 +15,20 @@ function Search({ userList, setFilteredUser }) {
         const query = e.target.value.toLowerCase();
         setSearchQuery(query);
 
-        const filteredUsers = userList.filter((users) =>
-            users.username.toLowerCase().includes(query)
-        )
+        // const filteredUsers = userList.filter((users) =>
+        //     users.username.toLowerCase().includes(query)
+        // )
+        //
+        // setFilteredUser(filteredUsers);
 
-        setFilteredUser(filteredUsers);
-    }
+        try {
+            const res = await axios.get(`https://64f71db49d77540849531dc0.mockapi.io/users?search=${query}`)
+            setFilteredUser(res.data.reverse());
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
     return (
         <>
             <form className="float-right">
@@ -157,8 +165,31 @@ export default function Page() {
         setFilteredUsers(userList);
     }, [userList])
 
+    const [searchQuery, setSearchQuery] = useState("");
+
+    const handleSearch = async (e) => {
+        const query = e.target.value.toLowerCase();
+        setSearchQuery(query);
+
+        try {
+            const res = await axios.get(`https://64f71db49d77540849531dc0.mockapi.io/users?search=${query}&page=1`);
+            setUserList(res.data.reverse());
+            setFilteredUsers(res.data.reverse());
+            setCurrentPage(0);
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
     const handlePageChange = (selectedPage) => {
         setCurrentPage(selectedPage.selected);
+
+        try {
+            const res = await axios.get(`https://64f71db49d77540849531dc0.mockapi.io/users?search=${searchQuery}&page=${selectedPage.selected + 1}`)
+            setFilteredUsers(res.data.reverse());
+        } catch (e) {
+            console.log(e)
+        }
     };
 
     const paginatedUserList = filteredUsers.slice(

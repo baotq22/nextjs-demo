@@ -215,7 +215,7 @@ export default function Page() {
         try {
             const res = await axios.get(`https://64f71db49d77540849531dc0.mockapi.io/product?search=${searchQuery}&page=${selectedPage.selected + 1}`)
             setFilteredProducts(res.data.reverse());
-        } catch(e) {
+        } catch (e) {
             console.log(e);
         }
     };
@@ -239,26 +239,10 @@ export default function Page() {
 
     const handleInputChange = (e) => {
         const { id, value, type, files } = e.target;
-
-        if (type === 'file') {
-            setFormValues((prevValues) => ({
-                ...prevValues,
-                [id]: files[0],
-            }));
-
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setSelectedImage(reader.result);
-            };
-            if (files[0]) {
-                reader.readAsDataURL(files[0]);
-            }
-        } else {
-            setFormValues((prevValues) => ({
-                ...prevValues,
-                [id]: value,
-            }));
-        }
+        setFormValues((prevValues) => ({
+            ...prevValues,
+            [id]: type === 'file' ? files[0] : value,
+        }));
 
         if (id === 'productName') {
             setProductNameError(productNameRegex.test(value) ? null : 'Invalid product name format');
@@ -272,29 +256,14 @@ export default function Page() {
 
     const handleSubmit = async () => {
         try {
-            const existingProduct = productList.find((product) => product.productName === formValues.productName);
+            const existingProduct = productList.find((product) => product.productName === formValues.productName)
             if (existingProduct && modalMode === 'add') {
                 alert('This product is already existed. Try again!');
             } else {
                 if (modalMode === 'add') {
-                    const formData = new FormData();
-                    for (const key in formValues) {
-                        formData.append(key, formValues[key]);
-                    }
-
-                    if (formValues.image instanceof File) {
-                        formData.append('image', formValues.image);
-                    }
-
                     const response = await axios.post(
                         'https://64f71db49d77540849531dc0.mockapi.io/product',
-                        formValues,
-                        formData,
-                        {
-                            headers: {
-                                'Content-Type': 'multipart/form-data',
-                            },
-                        }
+                        formValues
                     );
                     setProductList((prevProductList) => [response.data, ...prevProductList]);
                 } else if (modalMode === 'edit' && productToDelete) {
@@ -316,6 +285,7 @@ export default function Page() {
             console.error('Error adding product:', error);
         }
     };
+
 
     const handleSort = async (field) => {
         const sortedProductList = [...productList];
@@ -453,12 +423,6 @@ export default function Page() {
                                             style={{ width: '100%', height: '100%', cursor: 'pointer', padding: 0, border: 'none', background: 'none' }}
                                             onClick={() => handleImageClick(product?.image)}
                                         >
-                                            {/*<Image*/}
-                                            {/*    src={images}*/}
-                                            {/*    width={1920}*/}
-                                            {/*    height={1280}*/}
-                                            {/*    className="hidden md:block" alt="Product Image"*/}
-                                            {/*/>*/}
                                             <img style={{ width: '100%', height: '100%' }} src={product?.image} alt="Product Image" />
                                         </button>
                                     </td>
@@ -598,20 +562,6 @@ export default function Page() {
                             <option value="7">7</option>
                         </select>
                     </div>
-
-                    <div className='inputContainer'>
-                        <label className='mr-3'>IMAGE: <span className="text-red-500">*</span></label>
-                        <p>
-                            <input
-                                type="file"
-                                id="image"
-                                name="image"
-                                onChange={handleInputChange}
-                                accept="image/*"
-                            />
-                        </p>
-                    </div>
-
                     <p className="mt-4">The field with &quot;<span className="text-red-500">*</span>&quot; mark is required</p>
                 </form>
             </Modal>
